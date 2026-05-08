@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#fff7ed"/>
+  <!-- Left accent bar -->
+  <rect width="12" height="630" fill="#f97316"/>
+  <!-- Large icon -->
+  <rect x="80" y="165" width="220" height="220" rx="44" fill="#f97316"/>
+  <!-- Chef hat on icon -->
+  <ellipse cx="190" cy="235" rx="72" ry="62" fill="white"/>
+  <rect x="118" y="290" width="144" height="28" rx="8" fill="white"/>
+  <rect x="118" y="290" width="144" height="12" rx="6" fill="#ea580c"/>
+  <rect x="174" y="318" width="32" height="42" rx="6" fill="white"/>
+
+  <!-- Text -->
+  <text x="340" y="265" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="#111827">CaterEase</text>
+  <text x="340" y="330" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="400" fill="#6b7280">Premium Catering for Every Event</text>
+  <text x="340" y="390" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#f97316">Bangalore · Tirupati</text>
+
+  <!-- Bottom tagline -->
+  <rect x="0" y="560" width="1200" height="70" fill="#f97316"/>
+  <text x="600" y="605" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" fill="white" text-anchor="middle">Weddings · Corporate · Birthdays · Farmhouse Parties</text>
+</svg>

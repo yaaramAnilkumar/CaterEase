@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="40" fill="#f97316"/>
+  <!-- Chef hat -->
+  <g transform="translate(96,96)" fill="white">
+    <!-- Hat dome -->
+    <ellipse cx="0" cy="-10" rx="36" ry="32"/>
+    <!-- Hat brim -->
+    <rect x="-40" y="18" width="80" height="14" rx="4"/>
+    <!-- Hat band detail -->
+    <rect x="-40" y="18" width="80" height="6" rx="3" fill="#ea580c"/>
+    <!-- Fork tines -->
+    <rect x="-4" y="30" width="4" height="22" rx="2"/>
+    <rect x="2" y="30" width="4" height="22" rx="2"/>
+    <rect x="-10" y="30" width="4" height="22" rx="2"/>
+    <!-- Fork handle -->
+    <rect x="-10" y="50" width="24" height="4" rx="2"/>
+    <rect x="-1" y="52" width="6" height="14" rx="3"/>
+  </g>
+</svg>
