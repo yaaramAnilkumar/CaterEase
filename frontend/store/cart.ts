@@ -1,6 +1,12 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { CartItem, Dish } from "@/lib/types";
+
+const ssrSafeStorage = createJSONStorage(() => ({
+  getItem: (name: string) => (typeof window !== "undefined" ? localStorage.getItem(name) : null),
+  setItem: (name: string, value: string) => { if (typeof window !== "undefined") localStorage.setItem(name, value); },
+  removeItem: (name: string) => { if (typeof window !== "undefined") localStorage.removeItem(name); },
+}));
 
 interface CartState {
   items: CartItem[];
@@ -67,6 +73,6 @@ export const useCartStore = create<CartState>()(
         return subtotal - discount;
       },
     }),
-    { name: "cart-storage" }
+    { name: "cart-storage", storage: ssrSafeStorage }
   )
 );

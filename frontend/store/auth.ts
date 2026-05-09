@@ -1,7 +1,13 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { User } from "@/lib/types";
 import api from "@/lib/api";
+
+const ssrSafeStorage = createJSONStorage(() => ({
+  getItem: (name: string) => (typeof window !== "undefined" ? localStorage.getItem(name) : null),
+  setItem: (name: string, value: string) => { if (typeof window !== "undefined") localStorage.setItem(name, value); },
+  removeItem: (name: string) => { if (typeof window !== "undefined") localStorage.removeItem(name); },
+}));
 
 interface AuthState {
   user: User | null;
@@ -46,6 +52,6 @@ export const useAuthStore = create<AuthState>()(
 
       isAdmin: () => get().user?.role === "admin",
     }),
-    { name: "auth-storage", partialize: (s) => ({ user: s.user, token: s.token }) }
+    { name: "auth-storage", storage: ssrSafeStorage, partialize: (s) => ({ user: s.user, token: s.token }) }
   )
 );
