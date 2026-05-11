@@ -114,17 +114,17 @@ export default function MenuContent() {
         </div>
 
         {/* Category scroll */}
-        <div className="flex gap-3 overflow-x-auto pb-3 mb-6 scrollbar-hide -mx-1 px-1">
+        <div className="flex gap-2.5 overflow-x-auto pb-3 mb-6 scrollbar-hide -mx-1 px-1">
           {/* All */}
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`flex-shrink-0 relative overflow-hidden rounded-2xl transition-all duration-200 ${
-              !selectedCategory ? "ring-2 ring-brand-500 shadow-lg scale-105" : "hover:scale-105 hover:shadow-md"
-            }`}
+            className="flex-shrink-0 flex flex-col items-center gap-1"
           >
-            <div className={`w-20 h-16 flex items-center justify-center font-bold text-xs rounded-2xl ${
-              !selectedCategory ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-700"
-            }`}>
+            <div className={`w-16 h-12 rounded-xl flex items-center justify-center font-semibold transition-all duration-200 ${
+              !selectedCategory
+                ? "bg-gray-900 text-white ring-2 ring-brand-500 shadow-md"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`} style={{ fontSize: "11px" }}>
               All
             </div>
           </button>
@@ -136,23 +136,26 @@ export default function MenuContent() {
               <button
                 key={c.id}
                 onClick={() => setSelectedCategory(c.id)}
-                className={`flex-shrink-0 relative overflow-hidden rounded-2xl transition-all duration-200 ${
-                  isActive ? "ring-2 ring-brand-500 shadow-lg scale-105" : "hover:scale-105 hover:shadow-md"
-                }`}
+                className="flex-shrink-0 flex flex-col items-center gap-1"
               >
-                <div className="w-20 h-16 relative">
+                <div className={`w-16 h-12 rounded-xl overflow-hidden relative transition-all duration-200 ${
+                  isActive ? "ring-2 ring-brand-500 shadow-md" : "hover:shadow-sm"
+                }`}>
                   <Image
                     src={meta.img}
                     alt={c.name}
                     fill
-                    sizes="96px"
+                    sizes="64px"
+                    quality={95}
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10" />
-                  <span className="absolute bottom-1.5 left-0 right-0 text-center text-white text-[8px] font-medium px-1 leading-tight tracking-wide">
-                    {c.name}
-                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 </div>
+                <span style={{ fontSize: "10px" }} className={`font-medium leading-tight text-center w-16 ${
+                  isActive ? "text-brand-600" : "text-gray-500"
+                }`}>
+                  {c.name}
+                </span>
               </button>
             );
           })}
