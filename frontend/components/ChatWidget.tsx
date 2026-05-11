@@ -27,6 +27,7 @@ function parseMarkdown(text: string) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, "<a href='$2' target='_blank' rel='noopener noreferrer' class='text-brand-600 underline hover:text-brand-800'>$1</a>")
     .replace(/^[-•]\s(.+)/gm, "<li class='ml-4 list-disc'>$1</li>")
     .replace(/^\d+\.\s(.+)/gm, "<li class='ml-4 list-decimal'>$1</li>")
     .replace(/\n/g, "<br />");
