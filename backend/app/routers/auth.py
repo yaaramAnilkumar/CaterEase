@@ -127,7 +127,11 @@ def send_otp(payload: SendOTPRequest, db: Session = Depends(get_db)):
     db.add(OTPToken(phone=phone, otp=otp, expires_at=expires_at))
     db.commit()
 
-    send_otp_sms(phone, otp)
+    try:
+        send_otp_sms(phone, otp)
+    except Exception as exc:
+        # SMS delivery failed — log OTP to console so admin can relay it manually
+        print(f"[OTP] SMS failed for {phone}: {exc}. OTP={otp} (valid {settings.OTP_EXPIRE_MINUTES} min)")
 
     is_new_user = db.query(User).filter(User.phone == phone).first() is None
     return {"detail": "OTP sent", "is_new_user": is_new_user}
