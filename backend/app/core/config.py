@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     POINTS_PER_HUNDRED: int = 1       # points earned per ₹100 spent
     POINTS_RUPEE_VALUE: float = 0.10  # ₹ value of 1 point (100 pts = ₹10)
 
+    # ── AI Chatbot ───────────────────────────────────────────────────────────────
+    ANTHROPIC_API_KEY: str = ""
+
     # ── OTP / SMS (leave empty → dev mode: OTP printed to console) ─────────────
     TWILIO_ACCOUNT_SID: str = ""
     TWILIO_AUTH_TOKEN: str = ""

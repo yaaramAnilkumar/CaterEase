@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.routers import auth, locations, menu, orders, payments, admin, users, app_config
-from app.routers import promo, enquiry, upload, recurring, push, reviews, audit, blocked_dates
+from app.routers import promo, enquiry, upload, recurring, push, reviews, audit, blocked_dates, chat
 
 
 def _run_migrations():
@@ -72,6 +72,7 @@ app.include_router(push.router)
 app.include_router(reviews.router)
 app.include_router(audit.router)
 app.include_router(blocked_dates.router)
+app.include_router(chat.router)
 
 
 @app.get("/", tags=["health"])
