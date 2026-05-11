@@ -137,7 +137,24 @@ export default function CheckoutPage() {
       document.getElementById("section-event")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    if (!selectedAddress) {
+    // Auto-save address if the form is open and has required fields filled
+    let resolvedAddress = selectedAddress;
+    if (!resolvedAddress && showAddressForm && addrForm.line1 && addrForm.area && addrForm.pincode) {
+      setSavingAddress(true);
+      try {
+        const { data } = await api.post("/users/me/addresses", addrForm);
+        setAddresses((prev) => [...prev, data]);
+        setSelectedAddress(data.id);
+        setShowAddressForm(false);
+        resolvedAddress = data.id;
+      } catch {
+        toast("Failed to save address. Please try again.", "error");
+        setSavingAddress(false);
+        return;
+      }
+      setSavingAddress(false);
+    }
+    if (!resolvedAddress) {
       toast("Please add or select a delivery address", "error");
       document.getElementById("section-address")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -151,7 +168,7 @@ export default function CheckoutPage() {
         guest_count: guests,
         event_date: eventDate,
         event_time: eventTime + ":00",
-        delivery_address_id: selectedAddress,
+        delivery_address_id: resolvedAddress,
         special_instructions: notes,
         dishes: items.map((i) => ({ dish_id: i.dish.id, quantity: i.quantity })),
         promo_code: promoResult?.code ?? null,
