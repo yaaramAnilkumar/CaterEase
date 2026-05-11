@@ -31,6 +31,8 @@ export default function DishCard({ dish }: { dish: Dish }) {
             src={dish.image_url}
             alt={dish.name}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            quality={90}
             className="object-cover group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
@@ -63,17 +65,17 @@ export default function DishCard({ dish }: { dish: Dish }) {
       {/* Content */}
       <div className="px-4 pt-3 pb-2">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-bold text-gray-900 text-[15px] leading-snug">{dish.name}</h3>
+          <h3 className="font-bold text-gray-900 text-sm leading-snug">{dish.name}</h3>
           <StarRating avg={dish.avg_rating} count={dish.review_count} />
         </div>
-        <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">{dish.description}</p>
+        <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">{dish.description}</p>
       </div>
 
       {/* Price + Add button — always pinned to bottom */}
       <div className="px-4 py-3 mt-auto border-t border-gray-100 flex items-center justify-between bg-gray-50/60">
         <div>
-          <span className="font-black text-brand-600 text-lg leading-none">{formatCurrency(dish.price_per_head)}</span>
-          <span className="text-[11px] text-gray-400 font-normal ml-0.5">/head</span>
+          <span className="font-black text-brand-600 text-base leading-none">{formatCurrency(dish.price_per_head)}</span>
+          <span className="text-[10px] text-gray-400 font-normal ml-0.5">/head</span>
         </div>
 
         {qty === 0 ? (

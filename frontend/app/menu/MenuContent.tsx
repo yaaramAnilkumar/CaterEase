@@ -149,7 +149,7 @@ export default function MenuContent() {
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10" />
-                  <span className="absolute bottom-1.5 left-0 right-0 text-center text-white text-[11px] font-semibold px-1 leading-tight">
+                  <span className="absolute bottom-1.5 left-0 right-0 text-center text-white text-[10px] font-semibold px-1 leading-tight">
                     {c.name}
                   </span>
                 </div>
