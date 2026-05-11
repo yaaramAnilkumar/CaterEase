@@ -7,6 +7,7 @@ import HowItWorks from "@/components/home/HowItWorks";
 import EventTypes from "@/components/home/EventTypes";
 import PopularDishes from "@/components/home/PopularDishes";
 import Testimonials from "@/components/home/Testimonials";
+import StatsSection from "@/components/home/StatsSection";
 
 export const metadata: Metadata = {
   title: "CaterEase — Premium Catering for Bangalore & Tirupati",
@@ -42,6 +43,7 @@ export default function Home() {
         <HeroSection />
         <ServiceTypes />
         <HowItWorks />
+        <StatsSection />
         <EventTypes />
         <PopularDishes />
         <Testimonials />
