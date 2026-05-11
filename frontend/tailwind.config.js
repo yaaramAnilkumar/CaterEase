@@ -22,7 +22,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        sans:  ["var(--font-inter)", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        serif: ["var(--font-playfair)", "Georgia", "serif"],
       },
     },
   },

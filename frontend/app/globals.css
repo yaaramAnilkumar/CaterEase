@@ -10,10 +10,22 @@
   body {
     @apply bg-white text-gray-900 font-sans;
   }
+  /* Display headings (h1, h2) get the serif treatment for elegance */
+  h1, h2 {
+    @apply font-serif;
+  }
 }
 
 @layer utilities {
   .container-app {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  /* Scrollbar hide utility for horizontal scroll rows */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
