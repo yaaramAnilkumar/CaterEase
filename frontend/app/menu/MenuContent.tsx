@@ -122,7 +122,7 @@ export default function MenuContent() {
               !selectedCategory ? "ring-2 ring-brand-500 shadow-lg scale-105" : "hover:scale-105 hover:shadow-md"
             }`}
           >
-            <div className={`w-24 h-20 flex items-center justify-center font-bold text-sm rounded-2xl ${
+            <div className={`w-20 h-16 flex items-center justify-center font-bold text-xs rounded-2xl ${
               !selectedCategory ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-700"
             }`}>
               All
@@ -140,7 +140,7 @@ export default function MenuContent() {
                   isActive ? "ring-2 ring-brand-500 shadow-lg scale-105" : "hover:scale-105 hover:shadow-md"
                 }`}
               >
-                <div className="w-24 h-20 relative">
+                <div className="w-20 h-16 relative">
                   <Image
                     src={meta.img}
                     alt={c.name}
@@ -149,7 +149,7 @@ export default function MenuContent() {
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10" />
-                  <span className="absolute bottom-1.5 left-0 right-0 text-center text-white text-[10px] font-semibold px-1 leading-tight">
+                  <span className="absolute bottom-1.5 left-0 right-0 text-center text-white text-[8px] font-medium px-1 leading-tight tracking-wide">
                     {c.name}
                   </span>
                 </div>
