@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import ServiceTypes from "@/components/home/ServiceTypes";
-import HowItWorks from "@/components/home/HowItWorks";
-import EventTypes from "@/components/home/EventTypes";
-import PopularDishes from "@/components/home/PopularDishes";
-import Testimonials from "@/components/home/Testimonials";
-import StatsSection from "@/components/home/StatsSection";
-import CostEstimator from "@/components/home/CostEstimator";
+
+const HowItWorks   = dynamic(() => import("@/components/home/HowItWorks"),   { ssr: false });
+const StatsSection = dynamic(() => import("@/components/home/StatsSection"),  { ssr: false });
+const EventTypes   = dynamic(() => import("@/components/home/EventTypes"),    { ssr: false });
+const CostEstimator= dynamic(() => import("@/components/home/CostEstimator"),{ ssr: false });
+const PopularDishes= dynamic(() => import("@/components/home/PopularDishes"), { ssr: false });
+const Testimonials = dynamic(() => import("@/components/home/Testimonials"),  { ssr: false });
 
 export const metadata: Metadata = {
   title: "CaterEase — Premium Catering for Bangalore & Tirupati",

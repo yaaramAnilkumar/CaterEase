@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, MapPin, Star, ChefHat, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -98,7 +99,9 @@ export default function HeroSection() {
                 <div key={i}
                   className={`relative overflow-hidden rounded-2xl shadow-xl ${i === 0 ? "row-span-1 h-44" : "h-44"}`}
                   style={{ transform: i % 2 === 0 ? "rotate(-1deg)" : "rotate(1deg)" }}>
-                  <img src={src} alt="food" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <Image src={src} alt="food" fill sizes="(max-width: 768px) 50vw, 200px"
+                    className="object-cover hover:scale-105 transition-transform duration-700"
+                    priority={i === 0} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
               ))}
