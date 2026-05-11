@@ -8,8 +8,9 @@ import api from "@/lib/api";
 import { Order } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
-import { Star, RefreshCw, Download } from "lucide-react";
+import { Star, RefreshCw, Download, ShoppingBag } from "lucide-react";
 import PushNotificationBanner from "@/components/PushNotificationBanner";
+import PageHero from "@/components/layout/PageHero";
 
 const statusColors: Record<string, string> = {
   Pending: "bg-yellow-100 text-yellow-700",
@@ -47,10 +48,10 @@ export default function OrdersPage() {
   return (
     <>
       <Navbar />
+      <PageHero title="My Orders" subtitle="Track and manage your catering orders" icon={<ShoppingBag className="w-5 h-5" />} />
       <main className="container-app py-10">
         <PushNotificationBanner />
         <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
-          <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
           <div className="flex items-center gap-3">
             {orders.length > 0 && (
               <button onClick={exportCSV} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 transition-colors">

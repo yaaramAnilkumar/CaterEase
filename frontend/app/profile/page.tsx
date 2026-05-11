@@ -8,6 +8,7 @@ import api from "@/lib/api";
 import { toast } from "@/components/ui/toaster";
 import { Address } from "@/lib/types";
 import { User, Lock, MapPin, Gift, Trash2, Copy, Check } from "lucide-react";
+import PageHero from "@/components/layout/PageHero";
 
 type Tab = "profile" | "password" | "addresses" | "referral";
 
@@ -118,8 +119,8 @@ export default function ProfilePage() {
   return (
     <>
       <Navbar />
+      <PageHero title="My Account" subtitle="Manage your profile, addresses and referrals" icon={<User className="w-5 h-5" />} />
       <main className="container-app py-10 max-w-2xl">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">My Account</h1>
 
         {/* Tab bar */}
         <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6">

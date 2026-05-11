@@ -1,6 +1,7 @@
 "use client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import PageHero from "@/components/layout/PageHero";
 import { useCartStore } from "@/store/cart";
 import { formatCurrency } from "@/lib/utils";
 import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
@@ -31,8 +32,8 @@ export default function CartPage() {
   return (
     <>
       <Navbar />
+      <PageHero title="Your Cart" subtitle={`${items.length} dish${items.length !== 1 ? "es" : ""} selected`} icon={<ShoppingCart className="w-5 h-5" />} />
       <main className="container-app py-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Your Cart</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-white rounded-2xl border border-gray-100 p-5">

@@ -4,10 +4,11 @@ import { useSearchParams } from "next/navigation";
 import DishCard from "@/components/menu/DishCard";
 import api from "@/lib/api";
 import { Category, Dish } from "@/lib/types";
-import { Search, ShoppingCart, ArrowRight } from "lucide-react";
+import { Search, ShoppingCart, ArrowRight, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart";
 import { formatCurrency } from "@/lib/utils";
+import PageHero from "@/components/layout/PageHero";
 
 type DietaryFilter = "all" | "veg" | "nonveg" | "jain" | "vegan" | "gluten_free";
 
@@ -59,13 +60,9 @@ export default function MenuContent() {
   const filtered = dishes.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
+    <>
+    <PageHero title="Our Menu" subtitle={`Choose dishes for ${guestCount} guests`} icon={<UtensilsCrossed className="w-5 h-5" />} />
     <main className="container-app py-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Our Menu</h1>
-          <p className="text-gray-500 text-sm mt-1">Choose dishes for {guestCount} guests</p>
-        </div>
-      </div>
 
       {/* Search */}
       <div className="relative mb-4">
@@ -144,5 +141,6 @@ export default function MenuContent() {
         </div>
       )}
     </main>
+    </>
   );
 }

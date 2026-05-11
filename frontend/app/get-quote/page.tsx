@@ -7,7 +7,8 @@ import Footer from "@/components/layout/Footer";
 import api from "@/lib/api";
 import { toast } from "@/components/ui/toaster";
 import { Toaster } from "@/components/ui/toaster";
-import { CheckCircle, Phone, Mail, Users, CalendarDays, MessageSquare } from "lucide-react";
+import { CheckCircle, Phone, Mail, Users, CalendarDays, MessageSquare, FileText } from "lucide-react";
+import PageHero from "@/components/layout/PageHero";
 
 const EVENT_TYPES = ["Birthday", "Wedding", "Corporate", "Sangeet", "Farmhouse Party", "Tea Party", "Family Reunion", "Other"];
 
@@ -80,6 +81,7 @@ export default function GetQuotePage() {
     <>
       <Navbar />
       <Toaster />
+      <PageHero title="Get a Quote" subtitle="Tell us about your event and we'll get back to you shortly" icon={<FileText className="w-5 h-5" />} />
       <main className="container-app py-12 max-w-2xl">
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Get a Free Quote</h1>
