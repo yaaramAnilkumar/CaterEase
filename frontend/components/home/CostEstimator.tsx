@@ -28,7 +28,7 @@ function formatINR(n: number) {
 export default function CostEstimator() {
   const [guests, setGuests]   = useState(50);
   const [service, setService] = useState<ServiceKey>("delivery");
-  const [selected, setSelected] = useState<Set<CourseKey>>(new Set(["main", "bread"]));
+  const [selected, setSelected] = useState<Set<CourseKey>>(new Set(["main", "bread"] as CourseKey[]));
 
   const toggle = (k: CourseKey) =>
     setSelected((prev) => { const n = new Set(prev); n.has(k) ? n.delete(k) : n.add(k); return n; });
