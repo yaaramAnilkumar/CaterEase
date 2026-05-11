@@ -11,6 +11,15 @@ import { formatCurrency } from "@/lib/utils";
 
 type DietaryFilter = "all" | "veg" | "nonveg" | "jain" | "vegan" | "gluten_free";
 
+const CATEGORY_IMAGES: Record<string, string> = {
+  "Starters":      "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=200&q=80",
+  "Main Course":   "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=200&q=80",
+  "Breads":        "https://images.unsplash.com/photo-1548865771-0a90db7e7dab?w=200&q=80",
+  "Rice & Biryani":"https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&q=80",
+  "Desserts":      "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=200&q=80",
+  "Beverages":     "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=200&q=80",
+};
+
 const DIETARY_OPTIONS: { key: DietaryFilter; label: string }[] = [
   { key: "all",         label: "All" },
   { key: "veg",         label: "🌿 Veg" },
@@ -77,16 +86,27 @@ export default function MenuContent() {
         ))}
       </div>
 
-      {/* Category pills */}
-      <div className="flex gap-2 flex-wrap mb-6">
-        <button onClick={() => setSelectedCategory(null)}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium border ${!selectedCategory ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-200 hover:border-brand-300"}`}>
-          All
-        </button>
-        {categories.map((c) => (
-          <button key={c.id} onClick={() => setSelectedCategory(c.id)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border ${selectedCategory === c.id ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-200 hover:border-brand-300"}`}>
-            {c.name}
+      {/* Category cards with images */}
+      <div className="flex gap-3 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+        {[{ id: null, name: "All", img: "" }, ...categories.map((c) => ({ ...c, img: CATEGORY_IMAGES[c.name] || "" }))].map((c) => (
+          <button key={c.id ?? "all"} onClick={() => setSelectedCategory(c.id ?? null)}
+            className={`flex-shrink-0 relative overflow-hidden rounded-2xl transition-all duration-200 ${
+              (c.id === null ? !selectedCategory : selectedCategory === c.id)
+                ? "ring-2 ring-brand-500 shadow-lg scale-105"
+                : "hover:scale-102 opacity-80 hover:opacity-100"
+            }`}>
+            {c.img ? (
+              <div className="w-24 h-20 relative">
+                <img src={c.img} alt={c.name} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10" />
+                <span className="absolute bottom-1.5 left-0 right-0 text-center text-white text-xs font-semibold px-1">{c.name}</span>
+              </div>
+            ) : (
+              <div className={`w-24 h-20 flex items-center justify-center font-semibold text-sm rounded-2xl ${
+                !selectedCategory ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600"}`}>
+                All
+              </div>
+            )}
           </button>
         ))}
       </div>

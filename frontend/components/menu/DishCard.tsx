@@ -29,7 +29,8 @@ export default function DishCard({ dish }: { dish: Dish }) {
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl">🍛</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <span className={`absolute top-2 left-2 text-xs font-bold px-2 py-0.5 rounded-full ${dish.is_veg ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
           {dish.is_veg ? "VEG" : "NON-VEG"}
         </span>
