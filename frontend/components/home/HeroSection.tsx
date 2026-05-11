@@ -27,7 +27,7 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 const FOOD_IMAGES = [
   "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&q=80",
   "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=400&q=80",
-  "https://images.unsplash.com/photo-1631452180539-96eca7d02d4e?w=400&q=80",
+  "https://images.unsplash.com/photo-1574653853027-5382a3d23a15?w=400&q=80",
   "https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400&q=80",
 ];
 
