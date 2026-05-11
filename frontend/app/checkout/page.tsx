@@ -10,7 +10,8 @@ import api from "@/lib/api";
 import { toast } from "@/components/ui/toaster";
 import Button from "@/components/ui/button";
 import { Address, ServiceType, AppConfig } from "@/lib/types";
-import { Plus, Minus, MapPin, X, Tag, ChevronRight } from "lucide-react";
+import { Plus, Minus, MapPin, X, Tag, ChevronRight, ShoppingBag } from "lucide-react";
+import PageHero from "@/components/layout/PageHero";
 
 declare global { interface Window { Razorpay: any } }
 
@@ -236,14 +237,17 @@ export default function CheckoutPage() {
   return (
     <>
       <Navbar />
+      <PageHero title="Checkout" subtitle="Review your order and confirm booking" icon={<ShoppingBag className="w-5 h-5" />} />
       <main className="container-app py-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
 
             {/* Service Type */}
             <div id="section-service" className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Service Type</h2>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-7 h-7 rounded-full bg-brand-500 text-white text-xs font-black flex items-center justify-center">1</span>
+                <h2 className="font-bold text-gray-900">Service Type</h2>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {serviceTypes.map((s) => (
                   <button key={s.id} onClick={() => handleServiceChange(s)}
@@ -272,7 +276,10 @@ export default function CheckoutPage() {
             {/* Guest Count */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-gray-900">Number of Guests</h2>
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-brand-500 text-white text-xs font-black flex items-center justify-center">2</span>
+                  <h2 className="font-bold text-gray-900">Number of Guests</h2>
+                </div>
                 {currentService && (
                   <span className="text-xs bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full">
                     Min {currentService.min_guests} for {currentService.name}
@@ -298,7 +305,10 @@ export default function CheckoutPage() {
 
             {/* Event Details */}
             <div id="section-event" className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Event Details</h2>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-7 h-7 rounded-full bg-brand-500 text-white text-xs font-black flex items-center justify-center">3</span>
+                <h2 className="font-bold text-gray-900">Event Details</h2>
+              </div>
               <div className="mb-4">
                 <label className="text-sm font-medium text-gray-700 block mb-2">Event Type *</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -340,7 +350,10 @@ export default function CheckoutPage() {
             {/* Delivery Address */}
             <div id="section-address" className="bg-white rounded-2xl border border-gray-100 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-gray-900">Delivery Address</h2>
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-brand-500 text-white text-xs font-black flex items-center justify-center">4</span>
+                  <h2 className="font-bold text-gray-900">Delivery Address</h2>
+                </div>
                 <button onClick={() => setShowAddressForm(!showAddressForm)}
                   className="flex items-center gap-1.5 text-sm text-brand-600 font-medium hover:underline">
                   {showAddressForm ? <><X className="w-3.5 h-3.5" /> Cancel</> : <><MapPin className="w-3.5 h-3.5" /> Add New</>}

@@ -6,7 +6,8 @@ import Footer from "@/components/layout/Footer";
 import api from "@/lib/api";
 import { Order, Dish, Review, PromoCode } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { CheckCircle, Clock, Package, Truck, Star, RotateCcw, FileText } from "lucide-react";
+import { CheckCircle, Clock, Package, Truck, Star, RotateCcw, FileText, ShoppingBag } from "lucide-react";
+import PageHero from "@/components/layout/PageHero";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart";
 import { toast } from "@/components/ui/toaster";
@@ -117,8 +118,22 @@ export default function OrderDetailPage() {
     }
   };
 
-  if (loading) return <><Navbar /><div className="container-app py-20 text-center text-gray-400">Loading...</div><Footer /></>;
-  if (!order) return <><Navbar /><div className="container-app py-20 text-center text-gray-400">Order not found.</div><Footer /></>;
+  if (loading) return (
+    <>
+      <Navbar />
+      <PageHero title="Order Details" subtitle="Loading your order..." icon={<ShoppingBag className="w-5 h-5" />} />
+      <div className="container-app py-20 text-center text-gray-400">Loading...</div>
+      <Footer />
+    </>
+  );
+  if (!order) return (
+    <>
+      <Navbar />
+      <PageHero title="Order Details" subtitle="" icon={<ShoppingBag className="w-5 h-5" />} />
+      <div className="container-app py-20 text-center text-gray-400">Order not found.</div>
+      <Footer />
+    </>
+  );
 
   const currentStep = steps.indexOf(order.status);
 
@@ -126,17 +141,21 @@ export default function OrderDetailPage() {
     <>
       <Navbar />
       <Toaster />
+      <PageHero
+        title={`Order #${order.id}`}
+        subtitle={`${order.event_type} · ${order.guest_count} guests · ${formatDate(order.event_date)}`}
+        icon={<ShoppingBag className="w-5 h-5" />}
+      />
       <main className="container-app py-10 max-w-3xl">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Order #{order.id}</h1>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">{formatDate(order.created_at)}</span>
+          <span className="text-sm text-gray-500">Placed on {formatDate(order.created_at)}</span>
+          <div className="flex items-center gap-2">
             <Link href={`/orders/${order.id}/invoice`}
-              className="flex items-center gap-1.5 text-sm border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+              className="flex items-center gap-1.5 text-sm border border-gray-200 text-gray-600 px-3 py-2 rounded-xl font-medium hover:bg-gray-50 transition-colors">
               <FileText className="w-3.5 h-3.5" /> Invoice
             </Link>
             <button onClick={handleReorder}
-              className="flex items-center gap-1.5 text-sm bg-brand-500 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-brand-600 transition-colors">
+              className="flex items-center gap-1.5 text-sm bg-brand-500 text-white px-3 py-2 rounded-xl font-medium hover:bg-brand-600 transition-colors">
               <RotateCcw className="w-3.5 h-3.5" /> Reorder
             </button>
           </div>
