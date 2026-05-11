@@ -25,6 +25,8 @@ function getTime() {
 
 function parseMarkdown(text: string) {
   return text
+    .replace(/^#{1,3}\s+(.+)/gm, "<strong class='block text-gray-900 mt-1 mb-0.5'>$1</strong>")
+    .replace(/^---$/gm, "<hr class='my-2 border-gray-200' />")
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, "<a href='$2' target='_blank' rel='noopener noreferrer' class='text-brand-600 underline hover:text-brand-800'>$1</a>")
