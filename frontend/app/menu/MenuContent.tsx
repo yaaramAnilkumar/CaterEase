@@ -15,7 +15,7 @@ type DietaryFilter = "all" | "veg" | "nonveg" | "jain" | "vegan" | "gluten_free"
 const CATEGORY_META: Record<string, { img: string; emoji: string }> = {
   "Starters":       { img: "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=300&q=85", emoji: "🥗" },
   "Main Course":    { img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&q=85", emoji: "🍛" },
-  "Breads":         { img: "https://images.unsplash.com/photo-1548865771-0a90db7e7dab?w=300&q=85",  emoji: "🫓" },
+  "Breads":         { img: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&q=85",  emoji: "🫓" },
   "Rice & Biryani": { img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=85", emoji: "🍚" },
   "Desserts":       { img: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300&q=85", emoji: "🍮" },
   "Beverages":      { img: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300&q=85", emoji: "🥤" },
