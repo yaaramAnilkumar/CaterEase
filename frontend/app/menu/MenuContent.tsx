@@ -13,12 +13,12 @@ import PageHero from "@/components/layout/PageHero";
 type DietaryFilter = "all" | "veg" | "nonveg" | "jain" | "vegan" | "gluten_free";
 
 const CATEGORY_META: Record<string, { img: string; emoji: string }> = {
-  "Starters":       { img: "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=200&q=75", emoji: "🥗" },
-  "Main Course":    { img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=200&q=75", emoji: "🍛" },
-  "Breads":         { img: "https://images.unsplash.com/photo-1548865771-0a90db7e7dab?w=200&q=75",  emoji: "🫓" },
-  "Rice & Biryani": { img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&q=75", emoji: "🍚" },
-  "Desserts":       { img: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=200&q=75", emoji: "🍮" },
-  "Beverages":      { img: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=200&q=75", emoji: "🥤" },
+  "Starters":       { img: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=150&q=90", emoji: "🥗" },
+  "Main Course":    { img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=150&q=90", emoji: "🍛" },
+  "Breads":         { img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=150&q=90", emoji: "🫓" },
+  "Rice & Biryani": { img: "https://images.unsplash.com/photo-1631515243349-e0cb75fb8d11?w=150&q=90", emoji: "🍚" },
+  "Desserts":       { img: "https://images.unsplash.com/photo-1567327613485-fbc7bf196198?w=150&q=90", emoji: "🍮" },
+  "Beverages":      { img: "https://images.unsplash.com/photo-1497534446932-c925b458314e?w=150&q=90", emoji: "🥤" },
 };
 
 const DIETARY_OPTIONS: { key: DietaryFilter; label: string; color: string }[] = [
@@ -118,18 +118,16 @@ export default function MenuContent() {
           {/* All */}
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`flex-shrink-0 flex flex-col items-center gap-1.5 transition-all duration-200 ${
-              !selectedCategory ? "opacity-100" : "opacity-60 hover:opacity-90"
-            }`}
+            className="flex-shrink-0 flex flex-col items-center gap-2 transition-all duration-200"
           >
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl border-2 transition-all ${
+            <div className={`w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-3xl border-2 transition-all duration-200 ${
               !selectedCategory
-                ? "border-brand-500 bg-brand-50 shadow-md shadow-brand-500/20 scale-105"
-                : "border-gray-200 bg-gray-50"
+                ? "border-brand-500 bg-gradient-to-br from-brand-50 to-orange-100 shadow-lg shadow-brand-500/25 scale-105"
+                : "border-gray-200 bg-white hover:border-brand-300 hover:scale-105"
             }`}>
               🍽️
             </div>
-            <span className={`text-[11px] font-semibold ${!selectedCategory ? "text-brand-600" : "text-gray-500"}`}>All</span>
+            <span className={`text-[11px] font-bold ${!selectedCategory ? "text-brand-600" : "text-gray-600"}`}>All</span>
           </button>
 
           {categories.map((c) => {
@@ -139,34 +137,32 @@ export default function MenuContent() {
               <button
                 key={c.id}
                 onClick={() => setSelectedCategory(c.id)}
-                className={`flex-shrink-0 flex flex-col items-center gap-1.5 transition-all duration-200 ${
-                  isActive ? "opacity-100" : "opacity-60 hover:opacity-90"
-                }`}
+                className="flex-shrink-0 flex flex-col items-center gap-2 transition-all duration-200"
               >
-                <div className={`w-16 h-16 rounded-2xl overflow-hidden border-2 transition-all relative ${
+                <div className={`w-[72px] h-[72px] rounded-2xl overflow-hidden border-2 transition-all duration-200 relative ${
                   isActive
-                    ? "border-brand-500 shadow-md shadow-brand-500/20 scale-105"
-                    : "border-gray-200"
+                    ? "border-brand-500 shadow-lg shadow-brand-500/25 scale-105"
+                    : "border-gray-200 hover:border-brand-300 hover:scale-105"
                 }`}>
                   {meta?.img ? (
                     <Image
                       src={meta.img}
                       alt={c.name}
                       fill
-                      sizes="64px"
+                      sizes="72px"
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl bg-gray-100">
+                    <div className="w-full h-full flex items-center justify-center text-3xl bg-orange-50">
                       {meta?.emoji ?? "🍴"}
                     </div>
                   )}
                   {isActive && (
-                    <div className="absolute inset-0 bg-brand-500/20" />
+                    <div className="absolute inset-0 bg-brand-500/15 ring-inset ring-2 ring-brand-500" />
                   )}
                 </div>
-                <span className={`text-[11px] font-semibold leading-tight text-center max-w-[64px] ${
-                  isActive ? "text-brand-600" : "text-gray-500"
+                <span className={`text-[11px] font-bold leading-tight text-center max-w-[72px] ${
+                  isActive ? "text-brand-600" : "text-gray-600"
                 }`}>
                   {c.name}
                 </span>
