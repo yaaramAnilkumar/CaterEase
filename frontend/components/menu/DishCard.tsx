@@ -22,13 +22,14 @@ export default function DishCard({ dish }: { dish: Dish }) {
   const qty = cartItem?.quantity ?? 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-      <div className="relative h-40 bg-gray-100">
+    <div className="group bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <div className="relative h-44 bg-gray-100 overflow-hidden">
         {dish.image_url ? (
-          <Image src={dish.image_url} alt={dish.name} fill className="object-cover" />
+          <Image src={dish.image_url} alt={dish.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl">🍛</div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <span className={`absolute top-2 left-2 text-xs font-bold px-2 py-0.5 rounded-full ${dish.is_veg ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
           {dish.is_veg ? "VEG" : "NON-VEG"}
         </span>
