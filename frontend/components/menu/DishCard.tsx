@@ -67,17 +67,17 @@ export default function DishCard({ dish }: { dish: Dish }) {
       {/* Content */}
       <div className="px-4 pt-3 pb-2">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-bold text-gray-900 text-[13px] leading-snug">{dish.name}</h3>
+          <h3 className="font-semibold text-gray-900 text-xs leading-snug">{dish.name}</h3>
           <StarRating avg={dish.avg_rating} count={dish.review_count} />
         </div>
-        <p className="text-[10px] text-gray-400 line-clamp-2 leading-relaxed">{dish.description}</p>
+        <p className="text-[10px] text-gray-400 line-clamp-1 leading-relaxed">{dish.description}</p>
       </div>
 
       {/* Price + Add */}
       <div className="px-4 py-3 mt-auto border-t border-gray-100 flex items-center justify-between bg-gray-50/60">
         <div>
-          <span className="font-black text-brand-600 text-sm leading-none">{formatCurrency(dish.price_per_head)}</span>
-          <span className="text-[10px] text-gray-400 font-normal ml-0.5">/head</span>
+          <span className="font-black text-brand-600 text-xs leading-none">{formatCurrency(dish.price_per_head)}</span>
+          <span className="text-[9px] text-gray-400 font-normal ml-0.5">/head</span>
         </div>
 
         {qty === 0 ? (

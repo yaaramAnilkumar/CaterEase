@@ -87,7 +87,7 @@ export default function MenuContent() {
               placeholder="Search dishes…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-2xl text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-300 placeholder:text-gray-400"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-2xl text-xs bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-300 placeholder:text-gray-400"
             />
           </div>
           <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-2xl px-3 py-2.5 flex-shrink-0">
@@ -102,7 +102,7 @@ export default function MenuContent() {
             <button
               key={key}
               onClick={() => setDietary(key)}
-              className={`px-3.5 py-1.5 rounded-2xl text-sm font-semibold border transition-all shadow-sm ${
+              className={`px-3 py-1 rounded-2xl text-xs font-semibold border transition-all shadow-sm ${
                 dietary === key
                   ? "bg-brand-500 text-white border-brand-500 shadow-brand-500/20"
                   : "bg-white text-gray-600 border-gray-200 hover:border-brand-300 hover:text-brand-600"
