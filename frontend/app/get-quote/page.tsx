@@ -57,20 +57,30 @@ export default function GetQuotePage() {
       <>
         <Navbar />
         <Toaster />
-        <main className="container-app py-20 max-w-lg text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+        <main className="container-app py-24 max-w-lg text-center">
+          <div className="w-20 h-20 bg-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">We'll be in touch!</h1>
+          <h1 className="text-3xl font-black text-gray-900 mb-3">We'll be in touch!</h1>
           <p className="text-gray-500 mb-2">
             Thank you, <strong>{form.name.split(" ")[0]}</strong>. Your enquiry has been received.
           </p>
           <p className="text-gray-400 text-sm mb-8">
             Our team will call you at <strong>{form.phone}</strong> within 24 hours to discuss your event.
           </p>
-          <a href="/" className="bg-brand-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm hover:bg-brand-600 transition-colors">
-            Back to Home
-          </a>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/" className="bg-brand-500 text-white px-6 py-3 rounded-2xl font-semibold text-sm hover:bg-brand-600 transition-colors">
+              Back to Home
+            </a>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setForm({ name: "", phone: "", email: "", event_type: "", guest_count: "", event_date: "", message: "" });
+              }}
+              className="border border-gray-200 text-gray-600 px-6 py-3 rounded-2xl font-semibold text-sm hover:bg-gray-50 transition-colors">
+              Submit Another Enquiry
+            </button>
+          </div>
         </main>
         <Footer />
       </>
