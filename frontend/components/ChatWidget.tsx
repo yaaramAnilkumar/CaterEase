@@ -23,8 +23,39 @@ function getTime() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-function parseMarkdown(text: string) {
-  return text
+function parseMarkdown(text: string): string {
+  // Process tables before other transforms (they're multi-line)
+  const lines = text.split("\n");
+  const out: string[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const t = lines[i].trim();
+    if (t.startsWith("|") && t.endsWith("|") && t.length > 1) {
+      const block: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith("|")) {
+        block.push(lines[i].trim());
+        i++;
+      }
+      // Need at least header + separator + 1 data row
+      if (block.length >= 3 && /^\|[\s\-:| ]+\|$/.test(block[1])) {
+        const cols = block[0].split("|").filter(Boolean).map(c => c.trim());
+        const rows = block.slice(2).map(r => r.split("|").filter(Boolean).map(c => c.trim()));
+        const th = cols.map(c => `<th style="border:1px solid #e5e7eb;padding:4px 8px;background:#f9fafb;font-weight:600;text-align:left;white-space:nowrap">${c}</th>`).join("");
+        const td = rows.map(r =>
+          `<tr>${r.map(c => `<td style="border:1px solid #e5e7eb;padding:4px 8px;white-space:nowrap">${c}</td>`).join("")}</tr>`
+        ).join("");
+        out.push(`<div style="overflow-x:auto;margin:6px 0"><table style="border-collapse:collapse;font-size:11px;width:100%"><thead><tr>${th}</tr></thead><tbody>${td}</tbody></table></div>`);
+      } else {
+        block.forEach(l => out.push(l));
+      }
+      continue;
+    }
+    out.push(lines[i]);
+    i++;
+  }
+
+  return out.join("\n")
     .replace(/^#{1,3}\s+(.+)/gm, "<strong class='block text-gray-900 mt-1 mb-0.5'>$1</strong>")
     .replace(/^---$/gm, "<hr class='my-2 border-gray-200' />")
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
