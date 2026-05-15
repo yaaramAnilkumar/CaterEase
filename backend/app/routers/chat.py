@@ -59,6 +59,28 @@ Free quote: https://cater-ease-delta.vercel.app/get-quote
 
 TOOLS = [
     {
+        "name": "add_to_cart",
+        "description": "Add one or more dishes to the customer's cart. Use when the customer asks to add, order, or select specific dishes. Search by dish name — partial matches are fine.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "dishes": {
+                    "type": "array",
+                    "description": "List of dishes to add.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name":     {"type": "string",  "description": "Dish name or partial name to search for."},
+                            "quantity": {"type": "integer", "description": "How many to add. Defaults to 1.", "default": 1},
+                        },
+                        "required": ["name"],
+                    },
+                },
+            },
+            "required": ["dishes"],
+        },
+    },
+    {
         "name": "get_menu",
         "description": "Fetch available dishes from the live menu. Filter by category name, dietary preference, or popularity. Use this whenever a customer asks about food options, specific dishes, or what's available.",
         "input_schema": {
@@ -138,7 +160,52 @@ SERVICE_LABELS = {
 }
 
 
+def _dish_to_dict(d: Dish) -> dict:
+    return {
+        "id": d.id, "name": d.name, "description": d.description or "",
+        "price_per_head": d.price_per_head,
+        "category": {"id": d.category.id, "name": d.category.name, "display_order": d.category.display_order, "is_active": d.category.is_active} if d.category else {"id": 0, "name": "", "display_order": 0, "is_active": True},
+        "is_veg": d.is_veg, "is_jain": d.is_jain, "is_vegan": d.is_vegan,
+        "is_gluten_free": d.is_gluten_free, "image_url": d.image_url,
+        "is_available": d.is_available, "is_popular": d.is_popular,
+        "avg_rating": None, "review_count": 0,
+    }
+
+
+def _execute_add_to_cart(inputs: dict, db: Session) -> tuple[str, list[dict]]:
+    """Returns (message_for_claude, [{dish, quantity}, ...])"""
+    from sqlalchemy import func as sqlfunc
+    items = inputs.get("dishes", [])
+    found, not_found = [], []
+
+    for item in items:
+        name = item.get("name", "").strip()
+        qty  = max(1, int(item.get("quantity", 1)))
+        dish = (
+            db.query(Dish)
+            .filter(Dish.is_available == True, Dish.name.ilike(f"%{name}%"))
+            .first()
+        )
+        if dish:
+            found.append({"dish": _dish_to_dict(dish), "quantity": qty})
+        else:
+            not_found.append(name)
+
+    parts = []
+    if found:
+        names = ", ".join(f"{f['dish']['name']} ×{f['quantity']} (₹{f['dish']['price_per_head']}/head)" for f in found)
+        parts.append(f"Added to cart: {names}.")
+    if not_found:
+        parts.append(f"Could not find: {', '.join(not_found)}. Please check the name.")
+
+    return " ".join(parts), found
+
+
 def _execute_tool(name: str, inputs: dict, db: Session) -> str:
+    if name == "add_to_cart":
+        msg, _ = _execute_add_to_cart(inputs, db)
+        return msg
+
     if name == "get_categories":
         cached = _cache_get("categories")
         if cached:
@@ -322,7 +389,12 @@ async def chat_stream(req: ChatRequest, db: Session = Depends(get_db)):
                             "name": block.name,
                             "input": block.input,
                         })
-                        result = _execute_tool(block.name, block.input, db)
+                        if block.name == "add_to_cart":
+                            result, cart_items = _execute_add_to_cart(block.input, db)
+                            if cart_items:
+                                yield f"data: {json.dumps({'cart_action': cart_items})}\n\n"
+                        else:
+                            result = _execute_tool(block.name, block.input, db)
                         print(f"[Chat/stream] tool={block.name} → {result[:80]}")
                         tool_results.append({
                             "type": "tool_result",

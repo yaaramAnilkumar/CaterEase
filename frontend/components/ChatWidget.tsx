@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, ChefHat } from "lucide-react";
+import { useCartStore } from "@/store/cart";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
@@ -82,6 +83,7 @@ export default function ChatWidget() {
   const [showQuick, setShowQuick] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
+  const { addItem } = useCartStore();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -139,6 +141,11 @@ export default function ChatWidget() {
                 const last = msgs[msgs.length - 1];
                 msgs[msgs.length - 1] = { ...last, text: last.text + data.token };
                 return msgs;
+              });
+            }
+            if (data.cart_action) {
+              data.cart_action.forEach((item: { dish: any; quantity: number }) => {
+                for (let q = 0; q < (item.quantity ?? 1); q++) addItem(item.dish);
               });
             }
             if (data.error) {
