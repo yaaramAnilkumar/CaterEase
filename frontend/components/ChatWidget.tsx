@@ -37,8 +37,9 @@ function parseMarkdown(text: string): string {
         block.push(lines[i].trim());
         i++;
       }
-      // Need at least header + separator + 1 data row
-      if (block.length >= 3 && /^\|[\s\-:| ]+\|$/.test(block[1])) {
+      // separator row contains only |, -, :, spaces
+      const isSep = block.length >= 2 && block[1].replace(/[\|\-\:\s]/g, "") === "";
+      if (isSep) {
         const cols = block[0].split("|").filter(Boolean).map(c => c.trim());
         const rows = block.slice(2).map(r => r.split("|").filter(Boolean).map(c => c.trim()));
         const th = cols.map(c => `<th style="border:1px solid #e5e7eb;padding:4px 8px;background:#f9fafb;font-weight:600;text-align:left;white-space:nowrap">${c}</th>`).join("");
