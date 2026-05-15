@@ -160,6 +160,8 @@ export default function ChatWidget() {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
           {messages.map((m, i) => (
+            // Skip empty assistant placeholder — typing dots handle that state
+            m.role === "assistant" && m.text === "" ? null :
             <div key={i} className={`flex gap-2 items-end ${m.role === "user" ? "flex-row-reverse" : ""}`}>
               {m.role === "assistant" && (
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-orange-400 flex items-center justify-center flex-shrink-0 mb-4">
