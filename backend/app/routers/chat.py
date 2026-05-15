@@ -4,10 +4,25 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.menu import Dish, Category
+import time
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 _sessions: dict[str, list] = {}
+
+# Simple TTL cache for menu tool results (menu rarely changes)
+_tool_cache: dict[str, tuple[float, str]] = {}
+_CACHE_TTL = 300  # 5 minutes
+
+def _cache_get(key: str) -> str | None:
+    if key in _tool_cache:
+        ts, val = _tool_cache[key]
+        if time.time() - ts < _CACHE_TTL:
+            return val
+    return None
+
+def _cache_set(key: str, val: str) -> None:
+    _tool_cache[key] = (time.time(), val)
 
 SYSTEM_PROMPT = """
 You are CaterEase AI — a friendly, knowledgeable sales assistant for CaterEase, a premium catering service in Bangalore and Tirupati.
@@ -122,10 +137,20 @@ SERVICE_LABELS = {
 
 def _execute_tool(name: str, inputs: dict, db: Session) -> str:
     if name == "get_categories":
+        cached = _cache_get("categories")
+        if cached:
+            return cached
         cats = db.query(Category).filter(Category.is_active == True).order_by(Category.display_order).all()
-        return f"Available categories: {', '.join(c.name for c in cats)}"
+        result = f"Available categories: {', '.join(c.name for c in cats)}"
+        _cache_set("categories", result)
+        return result
 
     if name == "get_menu":
+        cache_key = f"menu:{inputs.get('category','')}:{inputs.get('dietary','')}:{inputs.get('popular_only','')}"
+        cached = _cache_get(cache_key)
+        if cached:
+            return cached
+
         q = db.query(Dish).filter(Dish.is_available == True)
 
         if inputs.get("category"):
@@ -158,7 +183,9 @@ def _execute_tool(name: str, inputs: dict, db: Session) -> str:
             tag_str = f" [{', '.join(tags)}]" if tags else ""
             lines.append(f"- {d.name}: ₹{d.price_per_head}/head{tag_str} — {d.description or ''}")
 
-        return "\n".join(lines)
+        result = "\n".join(lines)
+        _cache_set(cache_key, result)
+        return result
 
     if name == "calculate_quote":
         guests   = inputs["guests"]
@@ -209,7 +236,7 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
         while True:
             response = client.messages.create(
                 model="claude-haiku-4-5-20251001",
-                max_tokens=1024,
+                max_tokens=512,
                 system=SYSTEM_PROMPT,
                 tools=TOOLS,
                 messages=messages,
