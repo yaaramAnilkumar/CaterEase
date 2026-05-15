@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.menu import Dish, Category
 import time
+import json
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -270,3 +272,81 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
 
     _sessions[sid].append({"role": "assistant", "content": reply})
     return {"reply": reply, "session_id": sid}
+
+
+@router.post("/stream")
+async def chat_stream(req: ChatRequest, db: Session = Depends(get_db)):
+    sid = req.session_id
+    if sid not in _sessions:
+        _sessions[sid] = []
+
+    _sessions[sid].append({"role": "user", "content": req.message})
+    history = list(_sessions[sid][-10:])
+
+    async def generate():
+        import anthropic as sdk
+        async_client = sdk.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+        messages = list(history)
+        full_reply = ""
+
+        try:
+            while True:
+                # Stream each turn — tool turns yield no text, final turn streams the reply
+                async with async_client.messages.stream(
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=512,
+                    system=SYSTEM_PROMPT,
+                    tools=TOOLS,
+                    messages=messages,
+                ) as stream:
+                    async for text in stream.text_stream:
+                        full_reply += text
+                        yield f"data: {json.dumps({'token': text})}\n\n"
+                    final_msg = await stream.get_final_message()
+
+                if final_msg.stop_reason != "tool_use":
+                    break
+
+                # Execute tools (sync, benefits from cache)
+                tool_results = []
+                assistant_content = []
+                for block in final_msg.content:
+                    if block.type == "text":
+                        assistant_content.append({"type": "text", "text": block.text})
+                    elif block.type == "tool_use":
+                        assistant_content.append({
+                            "type": "tool_use",
+                            "id": block.id,
+                            "name": block.name,
+                            "input": block.input,
+                        })
+                        result = _execute_tool(block.name, block.input, db)
+                        print(f"[Chat/stream] tool={block.name} → {result[:80]}")
+                        tool_results.append({
+                            "type": "tool_result",
+                            "tool_use_id": block.id,
+                            "content": result,
+                        })
+
+                messages.append({"role": "assistant", "content": assistant_content})
+                messages.append({"role": "user", "content": tool_results})
+
+        except Exception as exc:
+            print(f"[Chat/stream] error: {exc}")
+            err = "Sorry, I'm having a moment! Please try again or call us directly."
+            full_reply = err
+            yield f"data: {json.dumps({'token': err})}\n\n"
+
+        _sessions[sid].append({"role": "assistant", "content": full_reply})
+        yield f"data: {json.dumps({'done': True})}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )

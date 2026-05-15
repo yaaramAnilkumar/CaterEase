@@ -73,20 +73,61 @@ export default function ChatWidget() {
     setShowQuick(false);
     setMessages((prev) => [...prev, { role: "user", text: trimmed, time: getTime() }]);
     setLoading(true);
+
+    // Add empty assistant placeholder — will fill with streamed tokens
+    setMessages((prev) => [...prev, { role: "assistant", text: "", time: getTime() }]);
+
     try {
-      const res = await fetch(`${API}/chat`, {
+      const res = await fetch(`${API}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: trimmed, session_id: sessionId() }),
       });
-      const data = await res.json();
-      setMessages((prev) => [...prev, { role: "assistant", text: data.reply, time: getTime() }]);
+
+      if (!res.body) throw new Error("no stream");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.token) {
+              setMessages((prev) => {
+                const msgs = [...prev];
+                const last = msgs[msgs.length - 1];
+                msgs[msgs.length - 1] = { ...last, text: last.text + data.token };
+                return msgs;
+              });
+            }
+            if (data.error) {
+              setMessages((prev) => {
+                const msgs = [...prev];
+                msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], text: data.error };
+                return msgs;
+              });
+            }
+          } catch { /* skip malformed line */ }
+        }
+      }
     } catch {
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        text: "Sorry, I'm having trouble right now. Please try again or call us directly.",
-        time: getTime(),
-      }]);
+      setMessages((prev) => {
+        const msgs = [...prev];
+        msgs[msgs.length - 1] = {
+          ...msgs[msgs.length - 1],
+          text: "Sorry, I'm having trouble right now. Please try again or call us directly.",
+        };
+        return msgs;
+      });
     } finally {
       setLoading(false);
     }
@@ -140,7 +181,7 @@ export default function ChatWidget() {
             </div>
           ))}
 
-          {loading && (
+          {loading && messages[messages.length - 1]?.text === "" && (
             <div className="flex gap-2 items-end">
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-orange-400 flex items-center justify-center flex-shrink-0">
                 <ChefHat className="w-3.5 h-3.5 text-white" />
