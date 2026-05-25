@@ -6,12 +6,12 @@ import { useCartStore } from "@/store/cart";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 const QUICK_REPLIES = [
-  { label: "🍱 Services",      text: "What catering services do you offer?" },
+  { label: "💍 Wedding",       text: "I'm planning a wedding for around 150 guests" },
+  { label: "🏢 Corporate",     text: "I need catering for a corporate event" },
+  { label: "🎂 Birthday",      text: "Planning a birthday party for 50 guests" },
   { label: "💰 Pricing",       text: "What are your prices per head?" },
-  { label: "📋 Menu",          text: "What's on your menu?" },
-  { label: "📍 Locations",     text: "Which cities do you serve?" },
-  { label: "🎁 Discounts",     text: "Do you have any discounts?" },
-  { label: "📅 How to Book",   text: "How do I place an order?" },
+  { label: "📋 Popular Dishes",text: "Show me your most popular dishes" },
+  { label: "🎁 Discounts",     text: "Do you have any discounts for large events?" },
 ];
 
 interface Message {
@@ -93,7 +93,7 @@ export default function ChatWidget() {
     if (open && messages.length === 0) {
       setMessages([{
         role: "assistant",
-        text: "👋 Hi! I'm CaterEase AI. Ask me anything about our services, pricing, or menu — I'm here to help!",
+        text: "👋 Hi! I'm Priya, your CaterEase Sales Consultant. Tell me about your event — occasion, guest count, date — and I'll craft the perfect catering plan for you! 🎉",
         time: getTime(),
       }]);
     }
