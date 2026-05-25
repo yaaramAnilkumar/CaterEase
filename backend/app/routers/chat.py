@@ -53,6 +53,7 @@ Your mission: guide every visitor through the sales funnel and convert them into
 - After adding items to cart, always encourage: "Ready to checkout? Your date is waiting!"
 
 === TOOLS AVAILABLE — USE THEM ===
+- search_knowledge_base: Answer questions about policies, service areas, dietary options, cancellation, payments, hygiene, logistics, and anything not in the menu DB. Use this FIRST for FAQ-style questions.
 - save_lead: Save customer contact info and event details to our CRM. Use as soon as you collect name/phone.
 - get_lead_profile: Check if customer has shared details before — personalise based on this.
 - recommend_package: Get a tailored service + menu recommendation based on event type and guest count.
@@ -230,6 +231,30 @@ TOOLS = [
             "required": ["guests", "service_type"],
         },
     },
+    {
+        "name": "search_knowledge_base",
+        "description": (
+            "Search CaterEase's FAQ and policy knowledge base. "
+            "Use this when customers ask about: service areas, cities covered, delivery radius, "
+            "dietary options (Jain, vegan, gluten-free, veg/non-veg separation), "
+            "cancellation or refund policy, payment methods, advance booking requirements, "
+            "what's included in each service type, hygiene and food safety certifications, "
+            "event day logistics (setup time, equipment provided), "
+            "custom menu requests, special additions, outdoor events, "
+            "tasting sessions, leftover food policy, corporate accounts, or any other "
+            "company-specific question not answered by the menu database."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The customer's question or topic to search for.",
+                },
+            },
+            "required": ["query"],
+        },
+    },
 ]
 
 
@@ -394,6 +419,15 @@ def _execute_tool(name: str, inputs: dict, db: Session, session_id: str = "") ->
     if name == "add_to_cart":
         msg, _ = _execute_add_to_cart(inputs, db)
         return msg
+
+    # ── search_knowledge_base ──
+    if name == "search_knowledge_base":
+        query = inputs.get("query", "").strip()
+        if not query:
+            return "No query provided."
+        from app.rag.retriever import search_kb
+        result = search_kb(query)
+        return result if result else "No specific information found for that query. Use your general knowledge about CaterEase to answer."
 
     return "Unknown tool."
 
