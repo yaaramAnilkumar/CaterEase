@@ -57,6 +57,7 @@ Your mission: guide every visitor through the sales funnel and convert them into
 - save_lead: Save customer contact info and event details to our CRM. Use as soon as you collect name/phone.
 - get_lead_profile: Check if customer has shared details before — personalise based on this.
 - recommend_package: Get a tailored service + menu recommendation based on event type and guest count.
+- plan_menu: AUTONOMOUS PLANNER — builds a complete, balanced menu plan using real DB dishes and exact pricing. Use when the customer says "plan my event", "suggest a menu", "surprise me", "just pick for me", or wants a ready-to-confirm package. After showing the plan, if customer confirms, call add_to_cart with ALL planned dishes, then calculate_cart_quote.
 - add_to_cart: Directly add dishes to the customer's cart when they ask.
 - calculate_cart_quote: Compute the EXACT grand total after cart is confirmed — uses real DB prices + service multiplier + discount. Always use this (not calculate_quote) once dishes are selected.
 - get_menu: Fetch live dish data from the database.
@@ -166,6 +167,26 @@ TOOLS = [
             "type": "object",
             "properties": {},
             "required": [],
+        },
+    },
+    {
+        "name": "plan_menu",
+        "description": (
+            "Autonomously build a complete, balanced menu plan for the customer's event using real dish data from the database. "
+            "Use when the customer says 'plan my event', 'suggest a full menu', 'surprise me', 'just pick for me', "
+            "'build a package', or whenever they want a ready-to-confirm menu without browsing dish by dish. "
+            "Returns a full itemised plan with exact pricing. After customer confirms, call add_to_cart with all planned dishes."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "event_type":      {"type": "string", "description": "Event type: Wedding, Birthday, Corporate, Sangeet, Farmhouse Party, Tea Party, Family Reunion, Other."},
+                "guests":          {"type": "integer", "description": "Number of guests."},
+                "dietary":         {"type": "string", "enum": ["veg", "non-veg", "jain", "vegan", "mixed"], "description": "Dietary preference. Use 'mixed' when both veg and non-veg guests are expected."},
+                "service_type":    {"type": "string", "enum": ["meal_box", "delivery_box", "full_catering"]},
+                "budget_per_head": {"type": "number", "description": "Optional max budget per head in ₹. Optional categories that exceed this are skipped."},
+            },
+            "required": ["event_type", "guests", "dietary", "service_type"],
         },
     },
     {
@@ -363,6 +384,132 @@ def _execute_tool(name: str, inputs: dict, db: Session, session_id: str = "") ->
         if lead.budget:      parts.append(f"Budget: {lead.budget}")
         if lead.stage:       parts.append(f"Stage: {lead.stage}")
         return "Returning visitor. " + " | ".join(parts) if parts else "Returning visitor — no details saved yet."
+
+    # ── plan_menu ──
+    if name == "plan_menu":
+        event_type = inputs.get("event_type", "General")
+        guests     = inputs.get("guests", 50)
+        dietary    = inputs.get("dietary", "mixed")
+        service    = inputs.get("service_type", "delivery_box")
+        budget_ph  = inputs.get("budget_per_head")
+
+        pkg      = PACKAGE_RECOMMENDATIONS.get(event_type, DEFAULT_PACKAGE)
+        mult     = SERVICE_MULTIPLIERS.get(service, 1.0)
+        discount = 0.95 if guests >= 50 else 1.0
+
+        # How many veg / non-veg dishes to pick per category for mixed events
+        PICKS: dict[str, tuple[int, int]] = {
+            "Starters":       (1, 1),
+            "Main Course":    (2, 1),
+            "Breads":         (1, 0),
+            "Rice & Biryani": (1, 1),
+            "Desserts":       (1, 0),
+            "Beverages":      (1, 0),
+        }
+
+        all_cats = pkg["must_have"] + [c for c in pkg["optional"] if c not in pkg["must_have"]]
+        selected: list[dict] = []
+        total_food_ph = 0.0
+
+        for cat_name in all_cats:
+            is_must = cat_name in pkg["must_have"]
+            cat = db.query(Category).filter(Category.name.ilike(cat_name)).first()
+            if not cat:
+                continue
+
+            base_q = db.query(Dish).filter(
+                Dish.is_available == True,
+                Dish.category_id  == cat.id,
+            )
+
+            if dietary == "veg":
+                dishes = base_q.filter(Dish.is_veg == True).order_by(
+                    Dish.is_popular.desc(), Dish.price_per_head.asc()).all()
+                picks = dishes[: PICKS.get(cat_name, (1, 0))[0]]
+
+            elif dietary == "jain":
+                dishes = base_q.filter(Dish.is_jain == True).order_by(
+                    Dish.is_popular.desc(), Dish.price_per_head.asc()).all()
+                picks = dishes[:1]
+
+            elif dietary == "vegan":
+                dishes = base_q.filter(Dish.is_vegan == True).order_by(
+                    Dish.is_popular.desc(), Dish.price_per_head.asc()).all()
+                picks = dishes[:1]
+
+            elif dietary == "non-veg":
+                n_total = sum(PICKS.get(cat_name, (1, 1)))
+                dishes = base_q.order_by(
+                    Dish.is_popular.desc(), Dish.price_per_head.asc()).all()
+                picks = dishes[:n_total]
+
+            else:  # mixed
+                n_veg, n_nonveg = PICKS.get(cat_name, (1, 0))
+                veg_picks = (
+                    base_q.filter(Dish.is_veg == True)
+                    .order_by(Dish.is_popular.desc(), Dish.price_per_head.asc())
+                    .limit(n_veg).all()
+                )
+                nonveg_picks = (
+                    base_q.filter(Dish.is_veg == False)
+                    .order_by(Dish.is_popular.desc(), Dish.price_per_head.asc())
+                    .limit(n_nonveg).all()
+                ) if n_nonveg else []
+                picks = veg_picks + nonveg_picks
+
+            for dish in picks:
+                projected_ph = (total_food_ph + dish.price_per_head) * mult * discount
+                if budget_ph and not is_must and projected_ph > budget_ph:
+                    continue  # skip optional dishes that bust the budget
+                selected.append({
+                    "dish": dish, "qty": guests,
+                    "category": cat_name, "is_must_have": is_must,
+                })
+                total_food_ph += dish.price_per_head
+
+        if not selected:
+            return (
+                "No dishes found for those filters. "
+                "Try a different dietary preference or let the customer choose manually."
+            )
+
+        food_subtotal  = total_food_ph * guests
+        after_service  = food_subtotal * mult
+        after_discount = after_service * discount
+
+        header = f"Autonomous {event_type} Plan — {guests} guests ({SERVICE_LABELS[service]})"
+        if dietary != "mixed":
+            header += f" [{dietary.title()}]"
+
+        lines = [header, ""]
+        current_cat = None
+        for item in selected:
+            if item["category"] != current_cat:
+                current_cat = item["category"]
+                tag = "Must-have" if item["is_must_have"] else "Bonus"
+                lines.append(f"[{tag}] {current_cat}:")
+            d = item["dish"]
+            pop  = " (Popular)" if d.is_popular else ""
+            diet = "Veg" if d.is_veg else "Non-Veg"
+            if d.is_jain:  diet += "/Jain"
+            if d.is_vegan: diet += "/Vegan"
+            lines.append(f"  * {d.name}{pop} — Rs.{d.price_per_head}/head [{diet}]")
+
+        lines += [
+            "",
+            f"Food subtotal ({guests} guests): Rs.{food_subtotal:,.0f}",
+        ]
+        if mult != 1.0:
+            lines.append(f"Service fee ({SERVICE_LABELS[service]} x{mult}): Rs.{after_service:,.0f}")
+        if discount != 1.0:
+            lines.append(f"5% bulk discount applied: Rs.{after_discount:,.0f}")
+        lines += [
+            f"GRAND TOTAL: Rs.{after_discount:,.2f}  (Rs.{after_discount / guests:,.2f}/head)",
+            "",
+            f"Planner tip: {pkg['tip']}",
+            "Customer action: reply 'confirm this plan' to add all dishes to cart, or ask to swap any dish.",
+        ]
+        return "\n".join(lines)
 
     # ── recommend_package ──
     if name == "recommend_package":
