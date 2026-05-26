@@ -58,9 +58,10 @@ Your mission: guide every visitor through the sales funnel and convert them into
 - get_lead_profile: Check if customer has shared details before — personalise based on this.
 - recommend_package: Get a tailored service + menu recommendation based on event type and guest count.
 - add_to_cart: Directly add dishes to the customer's cart when they ask.
+- calculate_cart_quote: Compute the EXACT grand total after cart is confirmed — uses real DB prices + service multiplier + discount. Always use this (not calculate_quote) once dishes are selected.
 - get_menu: Fetch live dish data from the database.
 - get_categories: Get available menu categories.
-- calculate_quote: Compute accurate price estimates.
+- calculate_quote: Early ballpark RANGE estimate before dishes are chosen. Do NOT use this once the customer has selected specific dishes — use calculate_cart_quote instead.
 
 === SERVICE TYPES ===
 - Meal Box (10+ guests): Individual boxes. Best for corporate.
@@ -220,7 +221,7 @@ TOOLS = [
     },
     {
         "name": "calculate_quote",
-        "description": "Calculate estimated price range for an event.",
+        "description": "Calculate an estimated price RANGE for an event before dishes are selected. Uses category-level averages — good for early ballpark quotes. Once the customer has picked specific dishes, use calculate_cart_quote instead for an exact total.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -229,6 +230,30 @@ TOOLS = [
                 "categories":  {"type": "array", "items": {"type": "string"}, "description": "Dish categories to include."},
             },
             "required": ["guests", "service_type"],
+        },
+    },
+    {
+        "name": "calculate_cart_quote",
+        "description": "Calculate the EXACT total for a confirmed cart using real dish prices from the database. Always use this after add_to_cart to show the customer an accurate final quote — never use calculate_quote for this. Applies the correct service multiplier and 5% bulk discount automatically.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "dishes": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name":     {"type": "string",  "description": "Dish name (same as used in add_to_cart)."},
+                            "quantity": {"type": "integer", "description": "Number of portions for this dish (typically the guest count, or split quantity for shared dishes)."},
+                        },
+                        "required": ["name", "quantity"],
+                    },
+                    "description": "Every dish in the cart with its quantity.",
+                },
+                "guests":       {"type": "integer", "description": "Total number of guests."},
+                "service_type": {"type": "string",  "enum": ["meal_box", "delivery_box", "full_catering"]},
+            },
+            "required": ["dishes", "guests", "service_type"],
         },
     },
     {
@@ -414,6 +439,47 @@ def _execute_tool(name: str, inputs: dict, db: Session, session_id: str = "") ->
             f"- Courses: {', '.join(cats)}\n"
             f"Exact quote: https://cater-ease-delta.vercel.app/get-quote"
         )
+
+    # ── calculate_cart_quote ──
+    if name == "calculate_cart_quote":
+        dishes   = inputs.get("dishes", [])
+        guests   = inputs["guests"]
+        service  = inputs["service_type"]
+        mult     = SERVICE_MULTIPLIERS.get(service, 1.0)
+        discount = 0.95 if guests >= 50 else 1.0
+
+        lines    = []
+        subtotal = 0.0
+        not_found = []
+
+        for item in dishes:
+            dish_name = item.get("name", "").strip()
+            qty       = max(1, int(item.get("quantity", guests)))
+            dish      = db.query(Dish).filter(Dish.is_available == True, Dish.name.ilike(f"%{dish_name}%")).first()
+            if dish:
+                item_total = dish.price_per_head * qty
+                subtotal  += item_total
+                lines.append(f"  {dish.name} ×{qty} @ ₹{dish.price_per_head}/head = ₹{item_total:,.0f}")
+            else:
+                not_found.append(dish_name)
+
+        if not_found:
+            lines.append(f"  ⚠️ Dishes not found in DB: {', '.join(not_found)} (use manual price if known)")
+
+        after_service  = subtotal * mult
+        after_discount = after_service * discount
+
+        parts = [
+            f"Exact cart total ({SERVICE_LABELS[service]}, {guests} guests):",
+            *lines,
+            f"Food subtotal: ₹{subtotal:,.0f}",
+        ]
+        if mult != 1.0:
+            parts.append(f"+ Service fee (×{mult} for {SERVICE_LABELS[service]}): ₹{after_service:,.0f}")
+        if discount != 1.0:
+            parts.append(f"- 5% bulk discount: ₹{after_discount:,.0f}")
+        parts.append(f"GRAND TOTAL: ₹{after_discount:,.2f}  (₹{after_discount / guests:,.2f}/head)")
+        return "\n".join(parts)
 
     # ── add_to_cart (string result only — cart_action emitted by streaming endpoint) ──
     if name == "add_to_cart":
